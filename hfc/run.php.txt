@@ -1,0 +1,190 @@
+<?php
+
+require 'application/libraries/selenium/vendor/autoload.php';
+
+use Facebook\WebDriver\Remote\DesiredCapabilities;
+use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
+use Facebook\WebDriver\WebDriverSelect;
+use Facebook\WebDriver\WebDriverElement;
+use Facebook\WebDriver\WebDriverKeys;
+use Facebook\WebDriver\Chrome\ChromeDriver;
+use Facebook\WebDriver\WebDriverSelectInterface;
+use Facebook\WebDriver\Cookie;
+
+
+$wmiLocator = new COM("WbemScripting.SWbemLocator");
+$objWMIService = $wmiLocator->ConnectServer('.', "root/cimv2", '', '');
+$objWMIService->Security_->ImpersonationLevel = 3;
+$oReg = $objWMIService->Get("StdRegProv");
+$compsys = $objWMIService->ExecQuery("Select * from Win32_process where name = 'iexplore.exe' or name = 'IEDriverServer.exe'");
+foreach ( $compsys as $compsys_val)
+{
+    $compsys_val->Terminate();
+}
+
+
+$capabilities = DesiredCapabilities::internetExplorer();
+ //delete all cookies
+
+// $capabilities->setCapability('unexpectedAlertBehaviour', 'accept');
+// $capabilities->setCapability('trustAllSSLCertificates', true);
+// $capabilities->setCapability('acceptSslCerts', true);
+// $capabilities->setCapability('ignoreProtectedModeSettings', true);
+// $capabilities->setCapability('javascriptEnabled', true);
+//$capabilities->setCapability('acceptInsecureCerts', true);
+//$capabilities->setCapability('ignoreProtectedModeSettings', true);
+//$capabilities = DesiredCapabilities::chrome();
+
+$driver = RemoteWebDriver::create('http://localhost:5555/wd/hub', $capabilities, 5000); 
+$driver->Manage()->DeleteAllCookies();
+$url = "https://ijprsunt7-04-ld18.icicibankltd.com:8212/SSO/ui/SSOLogin.jsp";
+$driver->get($url);
+$driver->findElement(WebDriverBy::id("moreInfoContainer"))->click();
+$driver->findElement(WebDriverBy::id("overridelink"))->click();
+
+$frame = $driver->findElement(WebDriverBy::name("loginFrame"));
+$driver->switchTo()->frame($frame);
+
+$driver->wait(60,1000)->until(
+    WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id("usertxt"))
+);
+
+$driver->findElement(WebDriverBy::id("usertxt"))->sendKeys("HE000441");
+$driver->findElement(WebDriverBy::id("passtxt"))->sendKeys("ujwala@123");
+
+$driver->findElement(WebDriverBy::id("Submit"))->click();
+
+$driver->wait(60,1000)->until(
+    WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::name("appSelect"))
+);
+
+$element = new WebDriverSelect($driver->findElement(WebDriverBy::name("appSelect")));
+$element->selectByValue('CoreServer');
+
+$driver->wait(5)->until(WebDriverExpectedCondition::alertIsPresent());
+$driver->switchTo()->alert()->accept();
+
+$driver->wait(60,1000)->until(
+    WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::name("CoreServer"))
+);
+
+$frame = $driver->findElement(WebDriverBy::name("CoreServer"));
+$driver->switchTo()->frame($frame);
+sleep(10);
+$frame = $driver->findElement(WebDriverBy::id("FINW"));
+$driver->switchTo()->frame($frame);
+
+$driver->wait(60,1000)->until(
+    WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id("menuName"))
+);
+
+//sleep(5);
+$element = $driver->findElement(WebDriverBy::id("menuName"));
+$element->sendKeys("HOAACTD");
+$driver->executeScript('document.getElementById("menuName").value = "HOAACTD";');
+$element->sendKeys(array(WebDriverKeys::TAB));
+$driver->findElement(WebDriverBy::id("gotomenu"))->click();
+
+$driver->wait(60,1000)->until(
+    WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id("sLnk2"))
+);
+
+echo $driver->getPageSource();
+
+$driver->findElement(WebDriverBy::id("sLnk2"))->click();
+//$driver->executeScript('alert("Hi");');
+sleep(2);
+
+$driver->executeScript("showCifId(objForm.cifId,'ctrl','F',objForm.custName)");
+
+sleep(2);
+
+echo 'count:'.count($driver->getWindowHandles());
+
+$handle = $driver->getWindowHandle();
+$driver->switchTo()->window($handle);
+
+echo $driver->getPageSource();
+
+$elements = $driver->findElements(WebDriverBy::cssSelector("input"));
+
+foreach ($elements as $e) {
+	echo '--------------------------------------';
+	echo 'ID : '.$e->getAttribute("id").PHP_EOL;
+	echo 'Name : '.$e->getAttribute("name").PHP_EOL;
+	echo '--------------------------------------';
+}
+
+
+//echo $driver->getPageSource();
+
+
+/*$element = new WebDriverSelect($driver->findElement(WebDriverBy::name("appSelect")));
+$element->selectByValue('CRMServer');
+
+$driver->wait(5)->until(WebDriverExpectedCondition::alertIsPresent());
+$driver->switchTo()->alert()->accept();
+
+$frame = $driver->findElement(WebDriverBy::name("CRMServer"));
+$driver->switchTo()->frame($frame);
+
+$driver->wait(60,1000)->until(
+    WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::name("ScreensTOCFrm"))
+);
+
+$frame = $driver->findElement(WebDriverBy::name("ScreensTOCFrm"));
+$driver->switchTo()->frame($frame);
+
+$driver->wait(60,1000)->until(
+    WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::name("Functionmain"))
+);
+
+$frame = $driver->findElement(WebDriverBy::name("Functionmain"));
+$driver->switchTo()->frame($frame);
+
+
+$driver->wait(60,1000)->until(
+    WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id("screen1"))
+);
+
+$driver->findElement(WebDriverBy::id("screen1"))->click();
+
+
+$driver->wait(60,1000)->until(
+    WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::name("1504"))
+);
+
+$frame = $driver->findElement(WebDriverBy::name("1504"));
+$driver->switchTo()->frame($frame);
+
+
+$driver->wait(60,1000)->until(
+    WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id("view2"))
+);
+
+$driver->findElement(WebDriverBy::id("view2"))->click();
+
+
+$driver->wait(60,1000)->until(
+    WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id("subview20"))
+);
+
+$driver->findElement(WebDriverBy::id("subview20"))->click();
+
+$driver->switchTo()->defaultContent();
+
+//formDispFrame
+
+//DataAreaFrm
+//tempFrm
+//tabViewFrm
+
+//$element = $driver->findElement(WebDriverBy::name("menuName"));
+//$element->sendKeys("HOAACTD");
+
+echo $driver->getPageSource();
+//$driver->executeScript('alert("Hi");');*/
+
+?>

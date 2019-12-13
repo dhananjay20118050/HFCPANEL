@@ -1,0 +1,27 @@
+<html LANG="EN">
+<title>Finacle Universal Banking Solution </title>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=8"/>
+
+<script>
+var pageDomain = 'icicibankltd.com';
+</script>
+<script type='text/javascript' src='javascripts/ssodomain.js'></script>
+
+<script>
+
+
+var browserListSSO = "Microsoft Internet Explorer";
+var browserName=navigator.appName;
+if(browserListSSO.indexOf(browserName)<0)
+{
+
+	window.location.replace("error.jsp?LCLANG=INFENG&ERROR_MSG=ERR_BROWSER_NOT_SUPPORTED");
+}
+</script>
+
+</head>
+<frameset rows="*, 0.1px">
+<frame SRC="../SSOServlet?CALLTYPE=GET_LOGIN_PAGE&LCLANG=INFENG" NAME="loginFrame" BORDER="NO" FRAMEBORDER="NO" SCROLLING="AUTO" NORESIZE>
+<frame SRC="AppletFrame.jsp" NAME="appletFrame" BORDER="NO" FRAMEBORDER="NO" SCROLLING="NO">
+</frameset>
